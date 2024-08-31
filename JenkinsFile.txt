@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/Cincaiplay/SIT753'
-        STAGING_SERVER = 'staging.example.com'
+        STAGING_SERVER = 'stagingServer.example.com'
         PRODUCTION_SERVER = 'CheeYuProduction.example.com'
         EMAIL_RECIPIENT = 's224368997@deakin.edu.au'
     }
