@@ -2,57 +2,86 @@ pipeline {
     agent any
 
     environment {
-        DIRECTORY_PATH = '/path/to/your/code' // Replace with the actual path
-        TESTING_ENVIRONMENT = 'staging'
-        PRODUCTION_ENVIRONMENT = 'CheeYuKohProduction' // Replace with your name as specified
+        GIT_REPO = 'https://github.com/Cincaiplay/SIT753'
+        STAGING_SERVER = 'staging.example.com'
+        PRODUCTION_SERVER = 'CheeYuProduction.example.com'
+        EMAIL_RECIPIENT = 's224368997@deakin.edu.au'
     }
 
     stages {
         stage('Build') {
             steps {
                 script {
-                    echo "Fetch the source code from the directory path specified by the environment variable: ${env.DIRECTORY_PATH}"
-                    echo "Compile the code and generate any necessary artifacts."
+                    echo "Building the project using Maven..."
                 }
             }
         }
-        stage('Test') {
+        stage('Unit and Integration Tests') {
             steps {
                 script {
-                    echo "Running unit tests."
-                    echo "Running integration tests."
+                    echo "Running unit and integration tests using JUnit..."
                 }
             }
         }
-        stage('Code Quality Check') {
+        stage('Code Analysis') {
             steps {
                 script {
-                    echo "Check the quality of the code."
+                    echo "Analyzing the code quality using SonarQube..."
                 }
             }
         }
-        stage('Deploy') {
+        stage('Security Scan') {
             steps {
                 script {
-                    echo "Deploy the application to a testing environment specified by the environment variable: ${env.TESTING_ENVIRONMENT}"
+                    echo "Performing a security scan using OWASP ZAP..."
+                }
+            }
+            post {
+                always {
+                    emailext (
+                        to: "${env.EMAIL_RECIPIENT}",
+                        subject: "Jenkins Security Scan Stage",
+                        body: "Security scan has completed. Check the Jenkins console output for details.",
+                        attachLog: true
+                    )
                 }
             }
         }
-        stage('Approval') {
+        stage('Deploy to Staging') {
             steps {
                 script {
-                    echo "Waiting for manual approval..."
-                    sleep(time: 10, unit: 'SECONDS')
-                    echo "Approval received."
+                    echo "Deploying to the staging server: ${env.STAGING_SERVER}"
+                }
+            }
+        }
+        stage('Integration Tests on Staging') {
+            steps {
+                script {
+                    echo "Running integration tests on the staging environment..."
+                }
+            }
+            post {
+                always {
+                    emailext (
+                        to: "${env.EMAIL_RECIPIENT}",
+                        subject: "Jenkins Staging Integration Tests",
+                        body: "Staging integration tests have completed. Check the Jenkins console output for details.",
+                        attachLog: true
+                    )
                 }
             }
         }
         stage('Deploy to Production') {
             steps {
                 script {
-                    echo "Deploy the code to the production environment: ${env.PRODUCTION_ENVIRONMENT}"
+                    echo "Deploying to the production server: ${env.PRODUCTION_SERVER}"
                 }
             }
+        }
+    }
+    post {
+        always {
+            echo "Pipeline completed."
         }
     }
 }
